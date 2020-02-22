@@ -1,0 +1,6 @@
+bind:
+  sample1:
+    src: /path/of/source/dir
+    links:
+    - /path/to/link1
+    - /path/to/link2
