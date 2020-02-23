@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"sort"
 )
 
 type Config struct {
@@ -19,6 +20,15 @@ type configReadError struct {
 
 func (err *configReadError) Error() string {
 	return err.message
+}
+
+func (c *Config) BindKeys() []string {
+	keys := make([]string, 0, len(c.Bind))
+	for key := range c.Bind {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 func (c *Config) BindEntries(names []string) ([]*BindEntry, error) {
