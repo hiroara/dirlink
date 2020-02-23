@@ -40,10 +40,13 @@ func (ctl *Controller) Mount() error {
 }
 
 func (ctl *Controller) Unmount() (err error) {
+	errors := make([]error, 0)
 	for _, l := range ctl.Links {
-		err = l.Unmount()
+		if err := l.Unmount(); err != nil {
+			errors = append(errors, err)
+		}
 	}
-	return err
+	return aggregateErrors(errors)
 }
 
 func (ctl *Controller) signalFinalize(sigs ...os.Signal) {
