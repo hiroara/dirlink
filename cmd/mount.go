@@ -54,8 +54,7 @@ func runMount(names []string) error {
 	if err != nil {
 		return err
 	}
-	ctl.Mount()
-	return nil
+	return ctl.Mount()
 }
 
 func init() {
