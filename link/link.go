@@ -48,11 +48,11 @@ func (l *Link) Mount() error {
 	defer l.unlock()
 	root, err := fs.NewLoopbackRoot(l.Src)
 	if err != nil {
-		return err
+		return &linkFailure{link: l, cause: err}
 	}
 	srv, err := fs.Mount(l.Dest, root, nil)
 	if err != nil {
-		return err
+		return &linkFailure{link: l, cause: err}
 	}
 	l.server = srv
 	if l.Verbose {
