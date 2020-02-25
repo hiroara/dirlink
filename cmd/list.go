@@ -31,19 +31,26 @@ var listCmd = &cobra.Command{
 	Short: "list bind entries",
 	Long:  "list bind entries defined in your configuration.",
 	Run: func(cmd *cobra.Command, args []string) {
-		if err := runList(); err != nil {
+		verbose := viper.GetBool("verbose")
+		if err := runList(verbose); err != nil {
 			log.Fatal(err)
 		}
 	},
 }
 
-func runList() error {
+func runList(verbose bool) error {
 	var cfg config.Config
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return err
 	}
 	for _, key := range cfg.BindKeys() {
 		fmt.Printf("%s\n", key)
+		if verbose {
+			entry := cfg.Bind[key]
+			for _, link := range entry.Links {
+				fmt.Printf("  %s -> %s\n", entry.Src, link)
+			}
+		}
 	}
 	return nil
 }
@@ -59,5 +66,6 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listCmd.Flags().BoolP("verbose", "v", false, "Verbose output")
+	viper.BindPFlag("verbose", listCmd.Flags().Lookup("verbose"))
 }
