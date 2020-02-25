@@ -50,7 +50,11 @@ func runMount(names []string) error {
 	if err != nil {
 		return err
 	}
-	controller.FromEntries(bs, true).Mount()
+	ctl, err := controller.FromEntries(bs, true)
+	if err != nil {
+		return err
+	}
+	ctl.Mount()
 	return nil
 }
 

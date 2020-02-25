@@ -16,12 +16,16 @@ func New(links []*link.Link) *Controller {
 	return &Controller{Links: links}
 }
 
-func FromEntries(entries []*config.BindEntry, verbose bool) *Controller {
+func FromEntries(entries []*config.BindEntry, verbose bool) (*Controller, error) {
 	links := make([]*link.Link, 0, len(entries))
 	for _, entry := range entries {
-		links = append(links, link.FromEntry(entry, verbose)...)
+		ls, err := link.FromEntry(entry, verbose)
+		if err != nil {
+			return nil, err
+		}
+		links = append(links, ls...)
 	}
-	return New(links)
+	return New(links), nil
 }
 
 func (ctl *Controller) Mount() error {

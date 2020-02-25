@@ -6,6 +6,7 @@ import (
 
 	"github.com/hanwen/go-fuse/v2/fs"
 	"github.com/hanwen/go-fuse/v2/fuse"
+	homedir "github.com/mitchellh/go-homedir"
 
 	"github.com/hiroara/dirlink/config"
 )
@@ -18,16 +19,28 @@ type Link struct {
 	mutex   sync.Mutex
 }
 
-func New(src, dest string, verbose bool) *Link {
-	return &Link{Src: src, Dest: dest, Verbose: verbose}
+func New(src, dest string, verbose bool) (*Link, error) {
+	s, err := homedir.Expand(src)
+	if err != nil {
+		return nil, err
+	}
+	d, err := homedir.Expand(dest)
+	if err != nil {
+		return nil, err
+	}
+	return &Link{Src: s, Dest: d, Verbose: verbose}, nil
 }
 
-func FromEntry(entry *config.BindEntry, verbose bool) []*Link {
+func FromEntry(entry *config.BindEntry, verbose bool) ([]*Link, error) {
 	links := make([]*Link, 0, len(entry.Links))
 	for _, link := range entry.Links {
-		links = append(links, New(entry.Src, link, verbose))
+		l, err := New(entry.Src, link, verbose)
+		if err != nil {
+			return nil, err
+		}
+		links = append(links, l)
 	}
-	return links
+	return links, nil
 }
 
 func (l *Link) Mount() error {
