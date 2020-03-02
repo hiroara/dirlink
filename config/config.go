@@ -6,7 +6,8 @@ import (
 )
 
 type Config struct {
-	Bind map[string]*BindEntry
+	Bind   map[string]*BindEntry
+	Groups map[string][]string
 }
 
 type BindEntry struct {
@@ -41,4 +42,13 @@ func (c *Config) BindEntries(names []string) ([]*BindEntry, error) {
 		bs = append(bs, b)
 	}
 	return bs, nil
+}
+
+func (c *Config) GroupKeys() []string {
+	keys := make([]string, 0, len(c.Groups))
+	for key := range c.Groups {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
 }

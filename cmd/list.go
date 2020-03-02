@@ -32,18 +32,25 @@ var listCmd = &cobra.Command{
 	Long:  "list bind entries defined in your configuration.",
 	Run: func(cmd *cobra.Command, args []string) {
 		verbose := viper.GetBool("verbose")
-		if err := runList(verbose); err != nil {
+		group := viper.GetBool("group")
+		if err := runList(group, verbose); err != nil {
 			log.Fatal(err)
 		}
 	},
 }
 
-func runList(verbose bool) error {
+func runList(group, verbose bool) error {
 	var cfg config.Config
 	if err := viper.Unmarshal(&cfg); err != nil {
 		return err
 	}
-	for _, key := range cfg.BindKeys() {
+	var keys []string
+	if group {
+		keys = cfg.GroupKeys()
+	} else {
+		keys = cfg.BindKeys()
+	}
+	for _, key := range keys {
 		fmt.Printf("%s\n", key)
 		if verbose {
 			entry := cfg.Bind[key]
@@ -68,4 +75,7 @@ func init() {
 	// is called directly, e.g.:
 	listCmd.Flags().BoolP("verbose", "v", false, "Verbose output")
 	viper.BindPFlag("verbose", listCmd.Flags().Lookup("verbose"))
+
+	listCmd.Flags().BoolP("group", "g", false, "Show list of groups")
+	viper.BindPFlag("group", listCmd.Flags().Lookup("group"))
 }
