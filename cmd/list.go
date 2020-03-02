@@ -27,12 +27,13 @@ import (
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "list bind entries",
-	Long:  "list bind entries defined in your configuration.",
+	Use:     "list",
+	Aliases: []string{"ls"},
+	Short:   "list bind entries",
+	Long:    "list bind entries defined in your configuration.",
 	Run: func(cmd *cobra.Command, args []string) {
 		verbose := viper.GetBool("verbose")
-		group := viper.GetBool("group")
+		group := viper.GetBool("list.group")
 		if err := runList(group, verbose); err != nil {
 			log.Fatal(err)
 		}
@@ -77,5 +78,5 @@ func init() {
 	viper.BindPFlag("verbose", listCmd.Flags().Lookup("verbose"))
 
 	listCmd.Flags().BoolP("group", "g", false, "Show list of groups")
-	viper.BindPFlag("group", listCmd.Flags().Lookup("group"))
+	viper.BindPFlag("list.group", listCmd.Flags().Lookup("group"))
 }

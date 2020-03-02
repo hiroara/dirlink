@@ -27,12 +27,13 @@ import (
 
 // mountCmd represents the mount command
 var mountCmd = &cobra.Command{
-	Use:   "mount",
-	Short: "Mount specific bind entries",
+	Use:     "mount",
+	Aliases: []string{"m"},
+	Short:   "Mount specific bind entries",
 	Long: `Mount specific bind entries.
 Please specify "bind" entries defined in your configuration file.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		group := viper.GetBool("group")
+		group := viper.GetBool("mount.group")
 		if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
 			log.Fatal(err)
 		}
@@ -77,5 +78,5 @@ func init() {
 	// is called directly, e.g.:
 	// mountCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	mountCmd.Flags().BoolP("group", "g", false, "Mount groups")
-	viper.BindPFlag("group", mountCmd.Flags().Lookup("group"))
+	viper.BindPFlag("mount.group", mountCmd.Flags().Lookup("group"))
 }
