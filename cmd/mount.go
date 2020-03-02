@@ -32,21 +32,28 @@ var mountCmd = &cobra.Command{
 	Long: `Mount specific bind entries.
 Please specify "bind" entries defined in your configuration file.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		group := viper.GetBool("group")
 		if err := cobra.MinimumNArgs(1)(cmd, args); err != nil {
 			log.Fatal(err)
 		}
-		if err := runMount(args); err != nil {
+		if err := runMount(args, group); err != nil {
 			log.Fatal(err)
 		}
 	},
 }
 
-func runMount(names []string) error {
+func runMount(names []string, group bool) error {
 	var cfg config.Config
-	if err := viper.Unmarshal(&cfg); err != nil {
+	err := viper.Unmarshal(&cfg)
+	if err != nil {
 		return err
 	}
-	bs, err := cfg.BindEntries(names)
+	var bs []*config.BindEntry
+	if group {
+		bs, err = cfg.GroupedBindEntries(names)
+	} else {
+		bs, err = cfg.BindEntries(names)
+	}
 	if err != nil {
 		return err
 	}
@@ -69,4 +76,6 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// mountCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	mountCmd.Flags().BoolP("group", "g", false, "Mount groups")
+	viper.BindPFlag("group", mountCmd.Flags().Lookup("group"))
 }

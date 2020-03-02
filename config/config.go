@@ -44,6 +44,22 @@ func (c *Config) BindEntries(names []string) ([]*BindEntry, error) {
 	return bs, nil
 }
 
+func (c *Config) GroupedBindEntries(names []string) ([]*BindEntry, error) {
+	bs := make([]*BindEntry, 0, len(names))
+	for _, name := range names {
+		g, ok := c.Groups[name]
+		if !ok {
+			return nil, &configReadError{fmt.Sprintf("No group entry: %s", name)}
+		}
+		b, err := c.BindEntries(g)
+		if err != nil {
+			return nil, err
+		}
+		bs = append(bs, b...)
+	}
+	return bs, nil
+}
+
 func (c *Config) GroupKeys() []string {
 	keys := make([]string, 0, len(c.Groups))
 	for key := range c.Groups {
